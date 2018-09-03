@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import datetime
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,8 +11,9 @@ from scipy import stats
 from helper import avg
 
 
+# no data until Aug. 18 2010
+arguments = '?format=json&start=2010-08-18&timespan=10year'
 base_url = 'https://api.blockchain.info/charts/'
-arguments = '?format=json&start=2009-01-01&timespan=10year'
 
 if not os.path.isfile('./mcap_data.json'):
     data = requests.get(base_url + 'market-cap' + arguments).json()
@@ -45,7 +47,6 @@ days = []
 lin_reg_days = []
 lin_reg_fee_ratios = []
 
-# Bitcoin genesis: Jan. 03, 2009 GMT
 start_date = datetime.datetime.fromtimestamp(fee_data[0]['x'])
 end_date = start_date + datetime.timedelta(days=365*10)
 day = start_date
@@ -55,14 +56,10 @@ for mcap_dict, rev_dict, fee_dict in zip(mcap_data, rev_data, fee_data):
     rev = rev_dict['y']
     fee = fee_dict['y']
 
-    if mcap > 0:
-        fee_ratio = fee/mcap
-        rev_ratio = rev/mcap
-        lin_reg_days.append(float(mcap_dict['x']))
-        lin_reg_fee_ratios.append(fee_ratio)
-    else:
-        fee_ratio = None
-        rev_ratio = None
+    fee_ratio = fee/mcap
+    rev_ratio = rev/mcap
+    lin_reg_days.append(float(mcap_dict['x']))
+    lin_reg_fee_ratios.append(fee_ratio)
 
     fee_ratios.append(fee_ratio)
     rev_ratios.append(rev_ratio)
@@ -79,48 +76,57 @@ print('Average Daily Security Factor: {0:.7f}'.format(avg_rev_ratio))
 print('Average Daily Fee-Only Security Factor: {0:.9f}'.format(avg_fee_ratio))
 
 
+start_plot = start_date - datetime.timedelta(days=100)
+end_plot = end_date - datetime.timedelta(days=500)
+
 # Plot revenue security factor (full)
 plt.ylim(ymin=0, ymax=0.0032)
-start_data_date = start_date + datetime.timedelta(days=450)
-plt.xlim(xmin=start_data_date, xmax=end_date)
+plt.xlim(xmin=start_plot, xmax=end_plot)
 plt.plot(days, rev_ratios, label='Daily miner revenue to market cap ratio')
-plt.hlines(avg_fee_ratio, start_data_date, end_date, color='red', linewidth=0.6, label='Daily fee revenue to market cap ratio (all-time average)')
+plt.hlines(avg_fee_ratio, start_plot, end_date, color='red', linewidth=0.6, label='Daily fee revenue to market cap ratio (all-time average)')
 plt.xlabel('Date')
 plt.ylabel('Security Factor (miner revenue / market cap)')
 plt.title('Bitcoin Security Factor')
 plt.legend()
 plt.show()
+
+start_plot = start_date + datetime.timedelta(days=350)
+end_plot = end_date - datetime.timedelta(days=600)
 
 # Plot revenue security factor (med zoom)
 plt.ylim(ymin=0, ymax=0.0008)
-start_data_date = start_date + datetime.timedelta(days=1200)
-plt.xlim(xmin=start_data_date, xmax=end_date)
+plt.xlim(xmin=start_plot, xmax=end_plot)
 plt.plot(days, rev_ratios, label='Daily miner revenue to market cap ratio')
-plt.hlines(avg_fee_ratio, start_data_date, end_date, color='red', linewidth=0.6, label='Daily fee revenue to market cap ratio (all-time average)')
+plt.hlines(avg_fee_ratio, start_plot, end_plot, color='red', linewidth=0.6, label='Daily fee revenue to market cap ratio (all-time average)')
 plt.xlabel('Date')
 plt.ylabel('Security Factor (miner revenue / market cap)')
 plt.title('Bitcoin Security Factor')
 plt.legend()
 plt.show()
 
+start_plot = start_date + datetime.timedelta(days=1800)
+end_plot = end_date - datetime.timedelta(days=600)
+
 # Plot revenue security factor (close zoom)
 plt.ylim(ymin=0, ymax=0.0003)
-start_data_date = start_date + datetime.timedelta(days=2500)
-plt.xlim(xmin=start_data_date, xmax=end_date)
+plt.xlim(xmin=start_plot, xmax=end_plot)
 plt.plot(days, rev_ratios, label='Daily miner revenue to market cap ratio')
-plt.hlines(avg_fee_ratio, start_data_date, end_date, color='red', linewidth=0.6, label='Daily fee revenue to market cap ratio (all-time average)')
+plt.hlines(avg_fee_ratio, start_plot, end_plot, color='red', linewidth=0.6, label='Daily fee revenue to market cap ratio (all-time average)')
 plt.xlabel('Date')
 plt.ylabel('Security Factor (miner revenue / market cap)')
 plt.title('Bitcoin Security Factor')
 plt.legend()
 plt.show()
+
+start_plot = start_date - datetime.timedelta(days=100)
+end_plot = end_date - datetime.timedelta(days=600)
 
 # Plot fee figure
 plt.plot(days, fee_ratios)
 plt.ylim(ymin=0, ymax=0.00005)
-start_data_date = start_date + datetime.timedelta(days=580)
-plt.hlines(avg_fee_ratio, start_data_date, end_date, color='orange', linewidth=0.6, linestyle='dashed', label='Daily fee revenue to market cap ratio (all-time average)')
-plt.hlines(0.000001, start_data_date, end_date, color='red', linewidth=0.6, linestyle='dashed', label='')
+plt.xlim(xmin=start_plot, xmax=end_plot)
+plt.hlines(avg_fee_ratio, start_plot, end_date, color='orange', linewidth=0.6, linestyle='dashed', label='Daily fee revenue to market cap ratio (all-time average)')
+plt.hlines(0.000001, start_plot, end_date, color='red', linewidth=0.6, linestyle='dashed', label='estimate baseline level')
 plt.xlabel('Date')
 plt.ylabel('Total daily TX fees to market cap ratio')
 plt.title('Bitcoin TX Fee Security Factor')
