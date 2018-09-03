@@ -16,6 +16,8 @@ Some Bitcoin proponents argue that total tx fees paid will increase **relative**
 
 The data appears to refute this claim, indicating a relatively constant baseline for this "tx-fee only" security factor.
 
-![](./Figure_1.png)
+![](./fee_security_factor.png)
+
+![](./security_factor.png)
 
 See my [Medium post](https://medium.com/coinmonks/bitcoin-security-a-negative-exponential-95e78b6b575) for more details.
