@@ -17,7 +17,7 @@ reward = 5000000000
 supply = 0
 blocks = []
 
-for block in range(700000):
+for block in range(7000000):
     try:
         daily_inflation = reward * BLOCKS_PER_DAY / supply
     except ZeroDivisionError:
@@ -99,6 +99,39 @@ with open('tx_fees_data.json') as f:
     fee_data = json.load(f)['values']
 
 
+# fill-in and interpolate fees
+fee_index = 0
+fee_step = 0
+prev_fee = fee_data[0]['y']
+next_fee = 0
+prev_fee_time = fee_data[0]['x']
+next_fee_time = None
+for block in blocks:
+    if block['unix_date'] >= prev_fee_time:
+        try:
+            prev_fee_time = fee_data[fee_index]['x']
+            prev_fee = fee_data[fee_index]['y']
+
+            next_fee_time = fee_data[fee_index+1]['x']
+            next_fee = fee_data[fee_index+1]['y']
+
+            fee_diff = next_fee - prev_fee
+            time_diff = next_fee_time - prev_fee_time
+            fee_step = fee_diff / time_diff
+
+            fee_index += 1
+        except IndexError:
+            break
+    block['daily_fee'] = prev_fee + ((block['unix_date'] - prev_fee_time) * fee_step)
+    try:
+        block['daily_fee'] /= block['supply']
+    except ZeroDivisionError:
+        pass
+
+
+# pp = pprint.PrettyPrinter(indent=4)
+# pp.pprint(blocks[530000:530005])
+# pp.pprint(fee_data[0:2])
 
 # blocks
 # [   {   'block': 0,
@@ -123,24 +156,24 @@ with open('tx_fees_data.json') as f:
 #     {'x': 1231113600, 'y': 0.0}
 # ]
 
+# note: change all 'date' refs to 'time'
 # 1. construct simple block to reward and supply map ✓
 # 2. pin known dates to blocks ✓
 # 3. extrapolate missing dates ✓
-# 4. pin fee to every 288th block? None the rest?
+# 4. pin fee to every 288th block? None the rest? ✓
 
-# pp = pprint.PrettyPrinter(indent=4)
-# pp.pprint(blocks[0:2])
-# pp.pprint(fee_data[0:2])
 
 
 # (BTC issued)/(total supply) as a function of day and/or block height.
 # (BTC paid in fees)/(total supply) 
 # (BTC issued + BTC paid in fees)/(total supply) 
 
-# block_times = np.array([d['unix_date'] for d in blocks])
-# block_height = np.array([d['block'] for d in blocks])
-# plt.plot(block_times, block_height)
-# plt.show()
+block_height = np.array([d['block'] for d in blocks])
+inflations = np.array([d['daily_inflation'] for d in blocks])
+fees = np.array([d['daily_fee'] for d in blocks])
+plt.semilogy(block_height, inflations)
+plt.semilogy(block_height, fees)
+plt.show()
 
 # plt.plot(blocks.keys(), inflations)
 # plt.ylim(ymin=1E-14, ymax=1)
