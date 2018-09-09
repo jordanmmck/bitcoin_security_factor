@@ -10,14 +10,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# construct supply schedule data
 BLOCKS_PER_DAY = 144
-# use satoshis
-reward = 5000000000
+SATOSHI_FACTOR = 1E8
+
+# construct supply schedule data
+reward = 50 * SATOSHI_FACTOR
 supply = 0
 blocks = []
 
-for block in range(7000000):
+for block in range(500000):
     try:
         daily_inflation = reward * BLOCKS_PER_DAY / supply
     except ZeroDivisionError:
@@ -28,6 +29,7 @@ for block in range(7000000):
             'block_reward': reward,
             'daily_inflation': daily_inflation,
             'daily_fee': None,
+            'daily_fee_ratio': None,
             'date': None,
             'unix_date': None
         })
@@ -98,7 +100,6 @@ if not os.path.isfile('./tx_fees_data.json'):
 with open('tx_fees_data.json') as f:
     fee_data = json.load(f)['values']
 
-
 # fill-in and interpolate fees
 fee_index = 0
 fee_step = 0
@@ -123,14 +124,17 @@ for block in blocks:
         except IndexError:
             break
     block['daily_fee'] = prev_fee + ((block['unix_date'] - prev_fee_time) * fee_step)
+    # if block['daily_fee'] == 0:
+    #     print(block['block'])
     try:
         block['daily_fee'] /= block['supply']
+        block['daily_fee_ratio'] = block['daily_fee'] / block['supply']
     except ZeroDivisionError:
         pass
 
 
 # pp = pprint.PrettyPrinter(indent=4)
-# pp.pprint(blocks[530000:530005])
+# pp.pprint(blocks[500000:500005])
 # pp.pprint(fee_data[0:2])
 
 # blocks
@@ -173,6 +177,7 @@ inflations = np.array([d['daily_inflation'] for d in blocks])
 fees = np.array([d['daily_fee'] for d in blocks])
 plt.semilogy(block_height, inflations)
 plt.semilogy(block_height, fees)
+# plt.xlim(xmin=0, xmax=600000)
 plt.show()
 
 # plt.plot(blocks.keys(), inflations)
