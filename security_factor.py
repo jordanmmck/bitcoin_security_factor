@@ -104,45 +104,18 @@ with open('tx_fees_data.json') as f:
     fee_data = json.load(f)['values']
 
 
-# fill-in and interpolate fees
+# fill-in known fee levels
+fee_time = 0
 fee_index = 0
-fee_step = 0
-prev_fee = 0
-next_fee = 0
-prev_fee_time = 0
-next_fee_time = 0
-
-
 for block in blocks:
-    if block['unix_date'] >= next_fee_time:
+    if block['unix_date'] >= fee_time:
+        block['daily_fee'] = fee_data[fee_index]['y'] * SATOSHI_FACTOR
+        block['daily_fee_ratio'] = block['daily_fee'] / block['supply']
+        fee_index += 1
         try:
-            prev_fee_time = fee_data[fee_index]['x']
-            next_fee_time = fee_data[fee_index+1]['x']
-
-            prev_fee = fee_data[fee_index]['y']
-            next_fee = fee_data[fee_index+1]['y']
-
-            fee_diff = next_fee - prev_fee
-            time_diff = next_fee_time - prev_fee_time
-            fee_step = fee_diff / time_diff
-
-            fee_index += 1
-
+            fee_time = fee_data[fee_index]['x']
         except IndexError:
             break
-
-    block_time_diff = block['unix_date'] - prev_fee_time
-    block['daily_fee'] = prev_fee + math.floor(block_time_diff * fee_step)
-
-    if block['daily_fee'] < 0:
-        print(block)
-
-    try:
-        block['daily_fee'] /= block['supply']
-    except ZeroDivisionError:
-        pass
-
-    prev_block_time = block['unix_date']
 
 
 # note: change all 'date' refs to 'time'
