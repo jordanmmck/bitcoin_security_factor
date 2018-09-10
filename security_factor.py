@@ -110,7 +110,10 @@ fee_index = 0
 for block in blocks:
     if block['unix_date'] >= fee_time:
         block['daily_fee'] = fee_data[fee_index]['y'] * SATOSHI_FACTOR
-        block['daily_fee_ratio'] = block['daily_fee'] / block['supply']
+        try:
+            block['daily_fee_ratio'] = block['daily_fee'] / block['supply']
+        except ZeroDivisionError:
+            block['daily_fee_ratio'] = 0
         fee_index += 1
         try:
             fee_time = fee_data[fee_index]['x']
@@ -119,15 +122,42 @@ for block in blocks:
 
 
 # interpolate remaining fee values
+fee_step = 0
+prev_time = 0
+prev_fee = 0
 for i, block in enumerate(blocks):
     if block['daily_fee']:
-        # get index of next known fee value
+        prev_fee = block['daily_fee']
+        prev_time = block['unix_date']
         i += 1
         try:
             while not blocks[i]['daily_fee']: i += 1
-            time_diff = blocks[i]
+            time_diff = blocks[i]['unix_date'] - block['unix_date']
+            fee_diff = blocks[i]['daily_fee'] - block['daily_fee']
+            fee_step = fee_diff / time_diff
         except IndexError:
             break
+    else:
+        time_diff = block['unix_date'] - prev_time
+        block['daily_fee'] = prev_fee + (fee_step * time_diff)
+        try:
+            block['daily_fee_ratio'] = block['daily_fee'] / block['supply']
+        except ZeroDivisionError:
+            block['daily_fee_ratio'] = 0
+
+# pp = pprint.PrettyPrinter(depth=4)
+# pp.pprint(blocks[100000:100015])
+
+# blocks.append({
+#         'block': block, 
+#         'supply': supply, 
+#         'block_reward': reward,
+#         'daily_inflation': daily_inflation,
+#         'daily_fee': None,
+#         'daily_fee_ratio': None,
+#         'date': None,
+#         'unix_date': None
+#     })
 
 # note: change all 'date' refs to 'time'
 # 1. construct simple block to reward and supply map ✓
@@ -140,7 +170,9 @@ blocks_arr = np.array([d['block'] for d in blocks])
 fees_arr = np.array([d['daily_fee_ratio'] for d in blocks])
 inflations_arr = np.array([d['daily_inflation'] for d in blocks])
 
-# slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fees_arr)
+slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fees_arr)
+line = slope*lin_reg_blocks+intercept
+print(slope, intercept)
 
 plt.ylim(ymin=1E-12, ymax=1E1)
 # plt.semilogy(blocks_arr, inflations_arr)
@@ -148,7 +180,7 @@ plt.ylim(ymin=0, ymax=5E-5)
 plt.xlim(xmin=0, xmax=2000000)
 plt.plot(blocks_arr, inflations_arr)
 plt.scatter(blocks_arr, fees_arr, s=0.5)
-plt.show()
+# plt.show()
 
 # plt.plot(blocks.keys(), inflations)
 # plt.scatter(block_height, fees)
