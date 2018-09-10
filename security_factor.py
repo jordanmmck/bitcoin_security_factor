@@ -104,7 +104,7 @@ with open('tx_fees_data.json') as f:
     fee_data = json.load(f)['values']
 
 
-# fill-in known fee levels
+# fill-in known fee values
 fee_time = 0
 fee_index = 0
 for block in blocks:
@@ -117,6 +117,17 @@ for block in blocks:
         except IndexError:
             break
 
+
+# interpolate remaining fee values
+for i, block in enumerate(blocks):
+    if block['daily_fee']:
+        # get index of next known fee value
+        i += 1
+        try:
+            while not blocks[i]['daily_fee']: i += 1
+            time_diff = blocks[i]
+        except IndexError:
+            break
 
 # note: change all 'date' refs to 'time'
 # 1. construct simple block to reward and supply map ✓
