@@ -8,6 +8,7 @@ import pprint
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import stats
 
 
 BLOCKS_PER_DAY = 144
@@ -18,7 +19,7 @@ reward = 50 * SATOSHI_FACTOR
 supply = 0
 blocks = []
 
-for block in range(500000):
+for block in range(2000000):
     try:
         daily_inflation = reward * BLOCKS_PER_DAY / supply
     except ZeroDivisionError:
@@ -36,6 +37,7 @@ for block in range(500000):
     if block % 210000 == 0 and block > 0:
         reward = reward//2
     supply += reward
+
 
 # block discovery dates
 # https://en.bitcoin.it/wiki/Controlled_supply
@@ -89,6 +91,7 @@ for block in blocks:
     block['unix_date'] = unix_date
     block['date'] = dt.datetime.utcfromtimestamp(unix_date)
 
+
 # get fee data
 arguments = '?format=json&start=2009-01-01&timespan=10year'
 base_url = 'https://api.blockchain.info/charts/'
@@ -100,20 +103,23 @@ if not os.path.isfile('./tx_fees_data.json'):
 with open('tx_fees_data.json') as f:
     fee_data = json.load(f)['values']
 
+
 # fill-in and interpolate fees
 fee_index = 0
 fee_step = 0
-prev_fee = fee_data[0]['y']
+prev_fee = 0
 next_fee = 0
-prev_fee_time = fee_data[0]['x']
-next_fee_time = None
+prev_fee_time = 0
+next_fee_time = 0
+
+
 for block in blocks:
-    if block['unix_date'] >= prev_fee_time:
+    if block['unix_date'] >= next_fee_time:
         try:
             prev_fee_time = fee_data[fee_index]['x']
-            prev_fee = fee_data[fee_index]['y']
-
             next_fee_time = fee_data[fee_index+1]['x']
+
+            prev_fee = fee_data[fee_index]['y']
             next_fee = fee_data[fee_index+1]['y']
 
             fee_diff = next_fee - prev_fee
@@ -121,44 +127,23 @@ for block in blocks:
             fee_step = fee_diff / time_diff
 
             fee_index += 1
+
         except IndexError:
             break
-    block['daily_fee'] = prev_fee + ((block['unix_date'] - prev_fee_time) * fee_step)
-    # if block['daily_fee'] == 0:
-    #     print(block['block'])
+
+    block_time_diff = block['unix_date'] - prev_fee_time
+    block['daily_fee'] = prev_fee + math.floor(block_time_diff * fee_step)
+
+    if block['daily_fee'] < 0:
+        print(block)
+
     try:
         block['daily_fee'] /= block['supply']
-        block['daily_fee_ratio'] = block['daily_fee'] / block['supply']
     except ZeroDivisionError:
         pass
 
+    prev_block_time = block['unix_date']
 
-# pp = pprint.PrettyPrinter(indent=4)
-# pp.pprint(blocks[500000:500005])
-# pp.pprint(fee_data[0:2])
-
-# blocks
-# [   {   'block': 0,
-#         'block_reward': 5000000000,
-#         'daily_fee': None,
-#         'daily_inflation': inf,
-#         'date': datetime.datetime(2009, 1, 3, 0, 0),
-#         'supply': 0,
-#         'unix_date': 1230940800},
-#     {   'block': 1,
-#         'block_reward': 5000000000,
-#         'daily_fee': None,
-#         'daily_inflation': 144.0,
-#         'date': datetime.datetime(2009, 1, 3, 0, 13),
-#         'supply': 5000000000,
-#         'unix_date': 1230941580}
-# ]
-
-# fee_data
-# [
-#     {'x': 1230940800, 'y': 0.0}, 
-#     {'x': 1231113600, 'y': 0.0}
-# ]
 
 # note: change all 'date' refs to 'time'
 # 1. construct simple block to reward and supply map ✓
@@ -167,20 +152,23 @@ for block in blocks:
 # 4. pin fee to every 288th block? None the rest? ✓
 
 
+blocks_arr = np.array([d['block'] for d in blocks])
+fees_arr = np.array([d['daily_fee_ratio'] for d in blocks])
+inflations_arr = np.array([d['daily_inflation'] for d in blocks])
 
-# (BTC issued)/(total supply) as a function of day and/or block height.
-# (BTC paid in fees)/(total supply) 
-# (BTC issued + BTC paid in fees)/(total supply) 
+# slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fees_arr)
 
-block_height = np.array([d['block'] for d in blocks])
-inflations = np.array([d['daily_inflation'] for d in blocks])
-fees = np.array([d['daily_fee'] for d in blocks])
-plt.semilogy(block_height, inflations)
-plt.semilogy(block_height, fees)
-# plt.xlim(xmin=0, xmax=600000)
+plt.ylim(ymin=1E-12, ymax=1E1)
+# plt.semilogy(blocks_arr, inflations_arr)
+plt.ylim(ymin=0, ymax=5E-5)
+plt.xlim(xmin=0, xmax=2000000)
+plt.plot(blocks_arr, inflations_arr)
+plt.scatter(blocks_arr, fees_arr, s=0.5)
 plt.show()
 
 # plt.plot(blocks.keys(), inflations)
+# plt.scatter(block_height, fees)
+# # plt.xlim(xmin=0, xmax=600000)
 # plt.ylim(ymin=1E-14, ymax=1)
 # plt.ylim(ymin=0, ymax=1E-5)
 # plt.xlim(xmin=0, xmax=7100000)
@@ -188,3 +176,24 @@ plt.show()
 
 # plt.xlabel('Block Number')
 # plt.ylabel('Daily Security Factor')
+
+
+# # Plot fee figure w/lin regression
+# lin_reg_blocks = np.array([d['block'] for d in blocks], dtype=float)
+# lin_reg_fee_ratios = np.array([d['daily_fee_ratio'] for d in blocks], dtype=float)
+
+# slope, intercept, r_value, p_value, std_err = stats.linregress(lin_reg_blocks, lin_reg_fee_ratios)
+# line = slope*lin_reg_blocks+intercept
+# print(slope, intercept)
+# line_formula = 'y = ' + str(slope) + ' x + ' + str(intercept)
+# print(line_formula)
+
+# plt.plot(lin_reg_blocks, lin_reg_fee_ratios, 'o', markersize=2, label='tx fee sec ratio')
+# plt.plot(lin_reg_blocks, line, label='optimistic fee projection')
+
+# # plt.xlabel('Date')
+# # plt.ylabel('Total daily TX fees to market cap ratio')
+# # plt.title('Bitcoin TX Fee Security Factor Regression')
+
+# plt.legend()
+# plt.show()
