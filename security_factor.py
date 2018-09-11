@@ -18,7 +18,6 @@ SATOSHI_FACTOR = 1E8
 reward = 50 * SATOSHI_FACTOR
 supply = 0
 blocks = []
-
 for block in range(2000000):
     try:
         daily_inflation = reward * BLOCKS_PER_DAY / supply
@@ -145,6 +144,10 @@ for i, block in enumerate(blocks):
         except ZeroDivisionError:
             block['daily_fee_ratio'] = 0
 
+# for block in blocks:
+#     if not block['daily_fee']:
+#         print(block)
+
 # pp = pprint.PrettyPrinter(depth=4)
 # pp.pprint(blocks[100000:100015])
 
@@ -170,17 +173,27 @@ blocks_arr = np.array([d['block'] for d in blocks])
 fees_arr = np.array([d['daily_fee_ratio'] for d in blocks])
 inflations_arr = np.array([d['daily_inflation'] for d in blocks])
 
-slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fees_arr)
-line = slope*lin_reg_blocks+intercept
-print(slope, intercept)
+# slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fees_arr)
+# line = slope*lin_reg_blocks+intercept
+# print(slope, intercept)
 
-plt.ylim(ymin=1E-12, ymax=1E1)
-# plt.semilogy(blocks_arr, inflations_arr)
-plt.ylim(ymin=0, ymax=5E-5)
-plt.xlim(xmin=0, xmax=2000000)
-plt.plot(blocks_arr, inflations_arr)
-plt.scatter(blocks_arr, fees_arr, s=0.5)
+# plt.ylim(ymin=1E-12, ymax=1E1)
+# # plt.semilogy(blocks_arr, inflations_arr)
+# plt.ylim(ymin=0, ymax=5E-5)
+# plt.xlim(xmin=0, xmax=2000000)
+# plt.plot(blocks_arr, inflations_arr)
+# plt.scatter(blocks_arr, fees_arr, s=0.5)
 # plt.show()
+
+a = list(range(10))
+b = [2,4,6,8]
+
+c = [2, 2, 3, 3, 2, 4, 5, 6, 7, 1]
+d = [9, None, 9, 7]
+
+plt.plot(a,c)
+plt.plot(b,d)
+plt.show()
 
 # plt.plot(blocks.keys(), inflations)
 # plt.scatter(block_height, fees)
