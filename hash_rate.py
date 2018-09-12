@@ -33,6 +33,4 @@ plt.xlabel('Time')
 plt.ylabel('Hash rate TH/s')
 plt.title('Bitcoin Hash Rate')
 
-# plt.ylim(ymin=0, ymax=5E-6)
-# plt.xlim(xmin=0, xmax=1200000)
 plt.show()
