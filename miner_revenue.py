@@ -46,5 +46,5 @@ plt.ylabel('USD')
 plt.title('Total Daily Miner Revenue')
 
 fig = plt.gcf()
-fig.set_size_inches(18.5, 10.5)
-fig.savefig('figures/miner_revenue.png', dpi=100)
+fig.set_size_inches(14.5, 8.5)
+fig.savefig('figures/miner_revenue.png', dpi=200, bbox_inches='tight')

@@ -109,5 +109,5 @@ plt.ylim(ymin=0, ymax=.14)
 plt.xlim(xmin=0, xmax=1200000)
 
 fig = plt.gcf()
-fig.set_size_inches(18.5, 10.5)
-fig.savefig('figures/security_factor.png', dpi=100)
+fig.set_size_inches(14.5, 8.5)
+fig.savefig('figures/security_factor.png', dpi=200, bbox_inches='tight')
