@@ -25,20 +25,20 @@ with open('block_data.json') as f:
 supply = 0
 for block in block_data:
     block['supply'] = supply
-    supply += block['reward_block']
+    supply += block['block_reward']
 
     if supply == 0:
         block['fee_sf'] = 0
         block['block_reward_sf'] = 0
     else:
-        block['fee_sf'] = block['reward_fees'] / supply
-        block['block_reward_sf'] = block['reward_block'] / supply
+        block['fee_sf'] = block['fees'] / supply
+        block['block_reward_sf'] = block['block_reward'] / supply
 
 
 # project block rewards for future blocks
 block_num = block_data[-1]['block']
-block_reward = block_data[-1]['reward_block']
-supply = block_data[-1]['supply'] + block_data[-1]['reward_block']
+block_reward = block_data[-1]['block_reward']
+supply = block_data[-1]['supply'] + block_data[-1]['block_reward']
 
 projected_rewards = []
 
