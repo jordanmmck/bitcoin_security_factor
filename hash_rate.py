@@ -30,11 +30,9 @@ for data_point in hash_rate_data:
 # plot
 datetimes = np.array([d['datetime'] for d in hash_rate_data])
 hash_rate = np.array([d['y'] for d in hash_rate_data])
-
-plt.plot(datetimes, hash_rate, linewidth=0.8)
+plt.plot(datetimes, hash_rate, color='#2a51fc', linewidth=1)
 
 ax = plt.gca()
-
 ylabels = [format(label, ',.0f') for label in ax.get_yticks()]
 ax.set_yticklabels(ylabels)
 
@@ -42,4 +40,6 @@ plt.xlabel('Year')
 plt.ylabel('Hash Rate TH/s')
 plt.title('Bitcoin Hash Rate')
 
-plt.show()
+fig = plt.gcf()
+fig.set_size_inches(18.5, 10.5)
+fig.savefig('hash_rate.png', dpi=100)

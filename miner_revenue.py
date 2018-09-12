@@ -32,10 +32,9 @@ times = np.array([d['x'] for d in miner_revenue_data])
 datetimes = np.array([d['datetime'] for d in miner_revenue_data])
 miner_revenue = np.array([d['y'] for d in miner_revenue_data])
 
-plt.plot(datetimes, miner_revenue, linewidth=0.8)
+plt.plot(datetimes, miner_revenue, color='#2a51fc', linewidth=1)
 
 ax = plt.gca()
-
 ylabels = [format(label, ',.0f') for label in ax.get_yticks()]
 ax.set_yticklabels(ylabels)
 
@@ -43,4 +42,6 @@ plt.xlabel('Year')
 plt.ylabel('USD')
 plt.title('Total Daily Miner Revenue')
 
-plt.show()
+fig = plt.gcf()
+fig.set_size_inches(18.5, 10.5)
+fig.savefig('miner_revenue.png', dpi=100)
