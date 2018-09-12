@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import requests
 import datetime as dt
@@ -12,6 +13,26 @@ from get_block_data import get_data
 
 
 PROJECTED_BLOCKS_LIMIT = 1200000
+
+
+
+miner_rev_url = 'https://api.blockchain.info/charts/miners-revenue?format=json'
+hash_rate_url = 'https://api.blockchain.info/charts/hash-rate?format=json'
+
+if not os.path.isfile('./hash_data.json'):
+    response = requests.get(hash_rate_url)
+    content = response.json()
+    data = content['values']
+
+    # save data to file
+    with open('hash_data.json', 'w') as f:
+        json.dump(data, f)
+
+with open('hash_data.json') as f:
+    hash_data = json.load(f)
+
+print(hash_data)
+sys.exit()
 
 # get data
 if not os.path.isfile('./block_data.json'):
