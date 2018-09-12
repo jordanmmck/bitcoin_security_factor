@@ -85,8 +85,21 @@ plt.plot(proj_block_nums_arr, proj_block_rewards_arr+projected_line, color='#ddc
 
 plt.rcParams['agg.path.chunksize'] = 100000
 
-plt.xlabel('Block Number')
-plt.ylabel('Annualized Security Factor')
+# assign dates to each block tick
+block_dates = {
+        0: 'Jan. 2009', 
+        200000: 'Sept. 2012', 
+        400000: 'Feb. 2016',
+        600000: 'Oct. 2019',
+        800000: 'Aug. 2023',
+        1000000: 'May. 2027',
+        1200000: 'March. 2031',
+}
+ax = plt.gca()
+ax.set_xticklabels(list(block_dates.values()))
+
+plt.xlabel('Date')
+plt.ylabel('Security Factor')
 plt.title('Bitcoin Annualized Security Factor Projection')
 plt.legend()
 
