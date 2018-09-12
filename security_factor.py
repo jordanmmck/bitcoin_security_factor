@@ -3,23 +3,21 @@ import json
 import requests
 import datetime as dt
 import calendar
-import math
-import pprint
-import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
+
+from get_block_data import get_data
 
 
 PROJECTED_BLOCKS_LIMIT = 1200000
 
 # get data
 if not os.path.isfile('./block_data.json'):
-    # get_data()
-    pass
+    get_data()
 
-with open('block_data_modified.json') as f:
+with open('block_data.json') as f:
     block_data = json.load(f)
 
 

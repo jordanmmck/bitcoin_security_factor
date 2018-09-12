@@ -7,7 +7,7 @@ latest_block_url = 'https://blockchain.info/latestblock'
 block_data_url = 'https://chain.api.btc.com/v3/block/{}'
 data_file_name = 'block_data.json'
 
-START_BLOCK = 540950
+START_BLOCK = 0
 BATCH_SIZE = 50
 
 def get_data():
@@ -57,5 +57,3 @@ def get_data():
 
     print('---------------------')
     print('Data saved to {}'.format(data_file_name))
-
-get_data()
