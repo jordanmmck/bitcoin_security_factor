@@ -15,24 +15,21 @@ with open('block_data.json') as f:
     block_data = json.load(f)
 
 pp = pprint.PrettyPrinter(depth=2)
-pp.pprint(block_data[:2])
+pp.pprint(block_data[500000])
 
-# supply = 0
-# for block in block_data:
-#     block['supply'] = supply
-#     supply += block['reward_block']
+for block in block_data:
+    block['miner_revenue'] = block['reward_block'] + block['reward_fees']
+    supply = block['supply']
+    if supply == 0:
+        block['fee_security_factor'] = 0
+        block['block_reward_security_factor'] = 0
+        block['security_factor'] = 0
+    else:
+        block['fee_security_factor'] = block['reward_fees'] / supply
+        block['block_reward_security_factor'] = block['reward_block'] / supply
+        block['security_factor'] = block['miner_revenue'] / supply
 
-# [{
-#     'block': 0,
-#     'reward_block': 5000000000,
-#     'reward_fees': 0,
-#     'timestamp': 1231006505
-# },{
-#     'block': 1,
-#     'reward_block': 5000000000,
-#     'reward_fees': 0,
-#     'timestamp': 1231469665
-# }]
+pp.pprint(block_data[500000:500005])
 
 # SATOSHI_FACTOR = 1E8
 
@@ -61,18 +58,23 @@ pp.pprint(block_data[:2])
 
 
 blocks_arr = np.array([d['block'] for d in block_data])
-block_rewards_arr = np.array([d['reward_block'] for d in block_data])
+block_rewards_arr = np.array([d['block_reward_security_factor'] for d in block_data])
+fee_rewards_arr = np.array([d['fee_security_factor'] for d in block_data])
+security_factor_arr = np.array([d['security_factor'] for d in block_data])
 # fees_arr = np.array([d['daily_fee_ratio'] for d in blocks])
 # inflations_arr = np.array([d['daily_inflation'] for d in blocks])
 
-# # slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fees_arr)
-# # line = slope*lin_reg_blocks+intercept
-# # print(slope, intercept)
+slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fee_rewards_arr)
+line = slope*blocks_arr+intercept
+print(slope, intercept)
 
 # # plt.ylim(ymin=1E-12, ymax=1E1)
 # # # plt.semilogy(blocks_arr, inflations_arr)
 # # plt.ylim(ymin=0, ymax=5E-5)
-# # plt.xlim(xmin=0, xmax=2000000)
 plt.plot(blocks_arr, block_rewards_arr)
+plt.plot(blocks_arr, fee_rewards_arr, color='grey', linewidth=0.2)
+plt.plot(blocks_arr, line, color='red')
+plt.ylim(ymin=0, ymax=5E-6)
+plt.xlim(xmin=0, xmax=600000)
 # # plt.scatter(blocks_arr, fees_arr, s=0.5)
-# plt.show()
+plt.show()
