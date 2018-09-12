@@ -11,16 +11,19 @@ import matplotlib.pyplot as plt
 # get data
 url = 'https://api.blockchain.info/charts/hash-rate?format=json&timespan=all'
 
-if not os.path.isfile('./hash_rate_data.json'):
+if not os.path.exists('data'):
+    os.makedirs('data')
+
+if not os.path.isfile('data/hash_rate_data.json'):
     response = requests.get(url)
     content = response.json()
     data = content['values']
 
     # save data to file
-    with open('hash_rate_data.json', 'w') as f:
+    with open('data/hash_rate_data.json', 'w') as f:
         json.dump(data, f)
 
-with open('hash_rate_data.json') as f:
+with open('data/hash_rate_data.json') as f:
     hash_rate_data = json.load(f)
 
 # add datetimes from unix times
@@ -42,4 +45,4 @@ plt.title('Bitcoin Hash Rate')
 
 fig = plt.gcf()
 fig.set_size_inches(18.5, 10.5)
-fig.savefig('hash_rate.png', dpi=100)
+fig.savefig('figures/hash_rate.png', dpi=100)

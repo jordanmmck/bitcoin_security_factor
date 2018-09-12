@@ -11,16 +11,19 @@ import matplotlib.pyplot as plt
 # get data
 url = 'https://api.blockchain.info/charts/miners-revenue?format=json&timespan=all'
 
-if not os.path.isfile('./miner_revenue_data.json'):
+if not os.path.exists('data'):
+    os.makedirs('data')
+
+if not os.path.isfile('data/miner_revenue_data.json'):
     response = requests.get(url)
     content = response.json()
     data = content['values']
 
-    with open('miner_revenue_data.json', 'w') as f:
+    with open('data/miner_revenue_data.json', 'w') as f:
         json.dump(data, f)
 
 
-with open('miner_revenue_data.json') as f:
+with open('data/miner_revenue_data.json') as f:
     miner_revenue_data = json.load(f)
 
 # add datetimes from unix times
@@ -44,4 +47,4 @@ plt.title('Total Daily Miner Revenue')
 
 fig = plt.gcf()
 fig.set_size_inches(18.5, 10.5)
-fig.savefig('miner_revenue.png', dpi=100)
+fig.savefig('figures/miner_revenue.png', dpi=100)

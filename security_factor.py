@@ -14,11 +14,13 @@ from get_block_data import get_data
 PROJECTED_BLOCKS_LIMIT = 1200000
 BLOCKS_PER_YEAR = 144 * 365
 
-# get data
-if not os.path.isfile('./block_data.json'):
+if not os.path.exists('data'):
+    os.makedirs('data')
+
+if not os.path.isfile('data/block_data.json'):
     get_data()
 
-with open('block_data.json') as f:
+with open('data/block_data.json') as f:
     block_data = json.load(f)
 
 # add supply data, fee security factor, block reward security factor
@@ -108,4 +110,4 @@ plt.xlim(xmin=0, xmax=1200000)
 
 fig = plt.gcf()
 fig.set_size_inches(18.5, 10.5)
-fig.savefig('security_factor.png', dpi=100)
+fig.savefig('figures/security_factor.png', dpi=100)
