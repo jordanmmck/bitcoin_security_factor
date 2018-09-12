@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import sys
+import datetime as dt
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,22 +16,31 @@ if not os.path.isfile('./miner_revenue_data.json'):
     content = response.json()
     data = content['values']
 
-    # save data to file
     with open('miner_revenue_data.json', 'w') as f:
         json.dump(data, f)
+
 
 with open('miner_revenue_data.json') as f:
     miner_revenue_data = json.load(f)
 
+# add datetimes from unix times
+for data_point in miner_revenue_data:
+    data_point['datetime'] = dt.datetime.fromtimestamp(data_point['x'])
 
 # plot
 times = np.array([d['x'] for d in miner_revenue_data])
+datetimes = np.array([d['datetime'] for d in miner_revenue_data])
 miner_revenue = np.array([d['y'] for d in miner_revenue_data])
 
-plt.plot(times, miner_revenue, linewidth=0.8)
+plt.plot(datetimes, miner_revenue, linewidth=0.8)
 
-plt.xlabel('Time')
-plt.ylabel('Revenue $/day')
-plt.title('Total Miner Revenue')
+ax = plt.gca()
+
+ylabels = [format(label, ',.0f') for label in ax.get_yticks()]
+ax.set_yticklabels(ylabels)
+
+plt.xlabel('Year')
+plt.ylabel('USD')
+plt.title('Total Daily Miner Revenue')
 
 plt.show()

@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import sys
+import datetime as dt
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,15 +23,23 @@ if not os.path.isfile('./hash_rate_data.json'):
 with open('hash_rate_data.json') as f:
     hash_rate_data = json.load(f)
 
+# add datetimes from unix times
+for data_point in hash_rate_data:
+    data_point['datetime'] = dt.datetime.fromtimestamp(data_point['x'])
 
 # plot
-times = np.array([d['x'] for d in hash_rate_data])
+datetimes = np.array([d['datetime'] for d in hash_rate_data])
 hash_rate = np.array([d['y'] for d in hash_rate_data])
 
-plt.plot(times, hash_rate, linewidth=0.8)
+plt.plot(datetimes, hash_rate, linewidth=0.8)
 
-plt.xlabel('Time')
-plt.ylabel('Hash rate TH/s')
+ax = plt.gca()
+
+ylabels = [format(label, ',.0f') for label in ax.get_yticks()]
+ax.set_yticklabels(ylabels)
+
+plt.xlabel('Year')
+plt.ylabel('Hash Rate TH/s')
 plt.title('Bitcoin Hash Rate')
 
 plt.show()
