@@ -11,70 +11,63 @@ import numpy as np
 from scipy import stats
 
 
+# get data
+if not os.path.isfile('./block_data.json'):
+    get_data()
+
 with open('block_data.json') as f:
     block_data = json.load(f)
 
-pp = pprint.PrettyPrinter(depth=2)
-pp.pprint(block_data[500000])
 
+# set security factor figures for existing blocks
 for block in block_data:
-    block['miner_revenue'] = block['reward_block'] + block['reward_fees']
     supply = block['supply']
     if supply == 0:
         block['fee_security_factor'] = 0
         block['block_reward_security_factor'] = 0
-        block['security_factor'] = 0
     else:
         block['fee_security_factor'] = block['reward_fees'] / supply
         block['block_reward_security_factor'] = block['reward_block'] / supply
-        block['security_factor'] = block['miner_revenue'] / supply
-
-pp.pprint(block_data[500000:500005])
-
-# SATOSHI_FACTOR = 1E8
-
-# # construct supply schedule data
-# reward = 50 * SATOSHI_FACTOR
-# supply = 0
-# blocks = []
-# for block in range(2000000):
-#     try:
-#         daily_inflation = reward * BLOCKS_PER_DAY / supply
-#     except ZeroDivisionError:
-#         daily_inflation = math.inf
-#     blocks.append({
-#             'block': block, 
-#             'supply': supply, 
-#             'block_reward': reward,
-#             'daily_inflation': daily_inflation,
-#             'daily_fee': None,
-#             'daily_fee_ratio': None,
-#             'date': None,
-#             'unix_date': None
-#         })
-#     if block % 210000 == 0 and block > 0:
-#         reward = reward//2
-#     supply += reward
 
 
-blocks_arr = np.array([d['block'] for d in block_data])
-block_rewards_arr = np.array([d['block_reward_security_factor'] for d in block_data])
-fee_rewards_arr = np.array([d['fee_security_factor'] for d in block_data])
-security_factor_arr = np.array([d['security_factor'] for d in block_data])
-# fees_arr = np.array([d['daily_fee_ratio'] for d in blocks])
-# inflations_arr = np.array([d['daily_inflation'] for d in blocks])
+# project block rewards for future blocks
+block_num = block_data[-1]['block']
+block_reward = block_data[-1]['reward_block']
+supply = block_data[-1]['supply'] + block_data[-1]['reward_block']
+upper_limit = 800000
+projected_rewards = []
+for block_num in range(block_num+1, upper_limit):
+    if block_num % 210000 == 0:
+        block_reward /= 2
+    try:
+        block_reward_sf = block_reward / supply
+    except ZeroDivisionError:
+        block_reward_sf = 0
+    block = {
+                "block_num": block_num,
+                "block_reward_sf": block_reward_sf
+            }
+    supply += block_reward
+    projected_rewards.append(block)
 
-slope, intercept, r_value, p_value, std_err = stats.linregress(blocks_arr, fee_rewards_arr)
-line = slope*blocks_arr+intercept
-print(slope, intercept)
 
-# # plt.ylim(ymin=1E-12, ymax=1E1)
-# # # plt.semilogy(blocks_arr, inflations_arr)
-# # plt.ylim(ymin=0, ymax=5E-5)
+# get arrays to plot
+block_nums_arr = np.array([d['block'] for d in block_data])
+block_reward_sf_arr = np.array([d['block_reward_sf'] for d in block_data])
+fee_sf_arr = np.array([d['fee_sf'] for d in block_data])
+
+# projected block rewards
+proj_block_nums_arr = np.array([d['block_num'] for d in projected_rewards])
+proj_block_rewards_arr = np.array([d['block_reward_sf'] for d in projected_rewards])
+
+# linear regression line
+slope, intercept, _, _, _ = stats.linregress(blocks_arr, fee_sf_arr)
+line = slope * blocks_arr + intercept
+
+# plot
 plt.plot(blocks_arr, block_rewards_arr)
 plt.plot(blocks_arr, fee_rewards_arr, color='grey', linewidth=0.2)
 plt.plot(blocks_arr, line, color='red')
 plt.ylim(ymin=0, ymax=5E-6)
 plt.xlim(xmin=0, xmax=600000)
-# # plt.scatter(blocks_arr, fees_arr, s=0.5)
 plt.show()
