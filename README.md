@@ -1,6 +1,8 @@
 # BTC Security Factor
 
-Plots Bitcoin daily "security factor" since genesis.
+Plots Bitcoin hash rate, miner revenue, and "security factor".
+
+The security factor is also extrapolated out to get an estimate of Bitcoin's relative security in the future.
 
 ## Security Budget
 The security of PoW cryptocurrencies like Bitcoin is proportional to miner revenue.
@@ -14,11 +16,10 @@ As block rewards decline, transaction fees become the sole source of Bitcoin sec
 
 Some Bitcoin proponents argue that total tx fees paid will increase **relative** to network value as block rewards decline.
 
-The data appears to refute this claim, indicating a relatively constant baseline for this "tx-fee only" security factor.
+The data appears to support a very gradual relative increase, with a low point in about 10 years.
 
-![](./fig_1.png)
-![](./fig_2.png)
-![](./fig_3.png)
-![](./fig_4.png)
+![](./hash_rate.png)
+![](./miner_revenue.png)
+![](./security_factor.png)
 
 See my [Medium post](https://medium.com/coinmonks/bitcoin-security-a-negative-exponential-95e78b6b575) for more details.
