@@ -5,7 +5,7 @@ import time
 
 latest_block_url = 'https://blockchain.info/latestblock'
 block_data_url = 'https://chain.api.btc.com/v3/block/{}'
-data_file_name = 'fee_data.json'
+data_file_name = 'block_data.json'
 
 START_BLOCK = 0
 BATCH_SIZE = 50

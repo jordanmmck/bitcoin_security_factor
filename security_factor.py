@@ -5,50 +5,58 @@ import datetime as dt
 import calendar
 import math
 import pprint
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
 
+PROJECTED_BLOCKS_LIMIT = 1000000
+
 # get data
 if not os.path.isfile('./block_data.json'):
-    get_data()
+    # get_data()
+    pass
 
-with open('block_data.json') as f:
+with open('block_data_modified.json') as f:
     block_data = json.load(f)
 
 
-# set security factor figures for existing blocks
+# add supply data, fee security factor, block reward security factor
+supply = 0
 for block in block_data:
-    supply = block['supply']
+    block['supply'] = supply
+    supply += block['block_reward']
+
     if supply == 0:
-        block['fee_security_factor'] = 0
-        block['block_reward_security_factor'] = 0
+        block['fee_sf'] = 0
+        block['block_reward_sf'] = 0
     else:
-        block['fee_security_factor'] = block['reward_fees'] / supply
-        block['block_reward_security_factor'] = block['reward_block'] / supply
+        block['fee_sf'] = block['fees'] / supply
+        block['block_reward_sf'] = block['block_reward'] / supply
 
 
 # project block rewards for future blocks
 block_num = block_data[-1]['block']
-block_reward = block_data[-1]['reward_block']
-supply = block_data[-1]['supply'] + block_data[-1]['reward_block']
-upper_limit = 800000
+block_reward = block_data[-1]['block_reward']
+supply = block_data[-1]['supply'] + block_data[-1]['block_reward']
+
 projected_rewards = []
-for block_num in range(block_num+1, upper_limit):
+
+for block_num in range(block_num+1, PROJECTED_BLOCKS_LIMIT):
     if block_num % 210000 == 0:
         block_reward /= 2
     try:
         block_reward_sf = block_reward / supply
     except ZeroDivisionError:
         block_reward_sf = 0
-    block = {
+
+    projected_rewards.append({
                 "block_num": block_num,
-                "block_reward_sf": block_reward_sf
-            }
+                "block_reward_sf": block_reward_sf 
+            })
     supply += block_reward
-    projected_rewards.append(block)
 
 
 # get arrays to plot
@@ -64,10 +72,16 @@ proj_block_rewards_arr = np.array([d['block_reward_sf'] for d in projected_rewar
 slope, intercept, _, _, _ = stats.linregress(blocks_arr, fee_sf_arr)
 line = slope * blocks_arr + intercept
 
-# plot
+# plot known block rewards and fees
 plt.plot(blocks_arr, block_rewards_arr)
 plt.plot(blocks_arr, fee_rewards_arr, color='grey', linewidth=0.2)
-plt.plot(blocks_arr, line, color='red')
+
+# plot projected block rewards
+plt.plot(proj_block_nums_arr, proj_block_rewards_arr, color='grey')
+
+# plot regression line
+plt.plot(np.append(block_nums_arr, proj_block_nums_arr), line, color='red')
+
 plt.ylim(ymin=0, ymax=5E-6)
 plt.xlim(xmin=0, xmax=600000)
 plt.show()
