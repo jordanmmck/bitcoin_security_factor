@@ -18,8 +18,8 @@ Some Bitcoin proponents argue that total tx fees paid will increase **relative**
 
 The data appears to support a very gradual relative increase, with a low point in about 10 years.
 
-![](./hash_rate.png)
-![](./miner_revenue.png)
-![](./security_factor.png)
+![](./figures/hash_rate.png)
+![](./figures/miner_revenue.png)
+![](./figures/security_factor.png)
 
 See my [Medium post](https://medium.com/coinmonks/bitcoin-security-a-negative-exponential-95e78b6b575) for more details.
