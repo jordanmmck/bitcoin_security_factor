@@ -12,7 +12,7 @@ import numpy as np
 from scipy import stats
 
 
-PROJECTED_BLOCKS_LIMIT = 1000000
+PROJECTED_BLOCKS_LIMIT = 1200000
 
 # get data
 if not os.path.isfile('./block_data.json'):
@@ -27,20 +27,20 @@ with open('block_data_modified.json') as f:
 supply = 0
 for block in block_data:
     block['supply'] = supply
-    supply += block['block_reward']
+    supply += block['reward_block']
 
     if supply == 0:
         block['fee_sf'] = 0
         block['block_reward_sf'] = 0
     else:
-        block['fee_sf'] = block['fees'] / supply
-        block['block_reward_sf'] = block['block_reward'] / supply
+        block['fee_sf'] = block['reward_fees'] / supply
+        block['block_reward_sf'] = block['reward_block'] / supply
 
 
 # project block rewards for future blocks
 block_num = block_data[-1]['block']
-block_reward = block_data[-1]['block_reward']
-supply = block_data[-1]['supply'] + block_data[-1]['block_reward']
+block_reward = block_data[-1]['reward_block']
+supply = block_data[-1]['supply'] + block_data[-1]['reward_block']
 
 projected_rewards = []
 
@@ -68,20 +68,30 @@ fee_sf_arr = np.array([d['fee_sf'] for d in block_data])
 proj_block_nums_arr = np.array([d['block_num'] for d in projected_rewards])
 proj_block_rewards_arr = np.array([d['block_reward_sf'] for d in projected_rewards])
 
-# linear regression line
-slope, intercept, _, _, _ = stats.linregress(blocks_arr, fee_sf_arr)
-line = slope * blocks_arr + intercept
-
 # plot known block rewards and fees
-plt.plot(blocks_arr, block_rewards_arr)
-plt.plot(blocks_arr, fee_rewards_arr, color='grey', linewidth=0.2)
+plt.plot(block_nums_arr, block_reward_sf_arr, color='#2a51fc', linewidth=2, label='block reward security factor')
+plt.plot(block_nums_arr, fee_sf_arr, color='#a5a5a5', linewidth=0.2, label='fee security factor')
 
 # plot projected block rewards
-plt.plot(proj_block_nums_arr, proj_block_rewards_arr, color='grey')
+plt.plot(proj_block_nums_arr, proj_block_rewards_arr, color='#afbeff', linewidth=2, label='projected block rewards')
+
+# linear regression line
+slope, intercept, _, _, _ = stats.linregress(block_nums_arr, fee_sf_arr)
+
+all_blocks_arr = np.append(block_nums_arr, proj_block_nums_arr)
+full_line = slope * all_blocks_arr + intercept
 
 # plot regression line
-plt.plot(np.append(block_nums_arr, proj_block_nums_arr), line, color='red')
+plt.plot(all_blocks_arr, full_line, color='red', label='fee security factor linear regression')
+
+projected_line = slope * proj_block_nums_arr + intercept
+plt.plot(proj_block_nums_arr, proj_block_rewards_arr+projected_line, color='#ddc9ff', ls='dotted', label='block rewards + tx fees security factor')
+
+plt.xlabel('Block Number')
+plt.ylabel('Security Factor')
+plt.title('Bitcoin Security Factor Projection')
+plt.legend()
 
 plt.ylim(ymin=0, ymax=5E-6)
-plt.xlim(xmin=0, xmax=600000)
+plt.xlim(xmin=0, xmax=1200000)
 plt.show()

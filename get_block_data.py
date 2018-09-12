@@ -7,7 +7,7 @@ latest_block_url = 'https://blockchain.info/latestblock'
 block_data_url = 'https://chain.api.btc.com/v3/block/{}'
 data_file_name = 'block_data.json'
 
-START_BLOCK = 0
+START_BLOCK = 540950
 BATCH_SIZE = 50
 
 def get_data():
@@ -34,12 +34,15 @@ def get_data():
 
         # append relevant data to list
         for block in content['data']:
-            data.append({
-                        "block": block['height'],
-                        "timestamp": block['curr_max_timestamp'],
-                        "block_reward": block['reward_block'],
-                        "fees": block['reward_fees'],
-                    })
+            try:
+                data.append({
+                            "block": block['height'],
+                            "timestamp": block['curr_max_timestamp'],
+                            "block_reward": block['reward_block'],
+                            "fees": block['reward_fees'],
+                        })
+            except TypeError:
+                break
 
         elapsed_time = time.time() - t0
         print('blocks: {}, time: {:.4f}, progress: {:.2f}%'.format(
