@@ -11,7 +11,7 @@ from scipy import stats
 from get_block_data import get_data, update_data
 
 
-PROJECTED_BLOCKS_LIMIT = 1200000
+PROJECTED_BLOCKS_LIMIT = 1400000
 BLOCKS_PER_YEAR = 144 * 365
 
 if not os.path.exists('data'):
@@ -98,6 +98,7 @@ block_dates = {
         800000: 'Aug. 2023',
         1000000: 'May. 2027',
         1200000: 'March. 2031',
+        1400000: 'Dec. 2034',
 }
 ax = plt.gca()
 ax.set_xticklabels(list(block_dates.values()))
@@ -108,8 +109,9 @@ plt.title('Bitcoin Annualized Security Factor Projection')
 plt.legend()
 
 plt.ylim(ymin=0, ymax=.14)
-plt.xlim(xmin=0, xmax=1200000)
+plt.xlim(xmin=0, xmax=PROJECTED_BLOCKS_LIMIT)
 
 fig = plt.gcf()
 fig.set_size_inches(14.5, 8.5)
 fig.savefig('figures/security_factor.png', dpi=200, bbox_inches='tight')
+plt.show()
