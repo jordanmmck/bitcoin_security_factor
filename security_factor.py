@@ -104,7 +104,7 @@ ax = plt.gca()
 ax.set_xticklabels(list(block_dates.values()))
 
 plt.xlabel('Date')
-plt.ylabel('Security Factor')
+plt.ylabel('Security Factor (annualized)')
 plt.title('Bitcoin Annualized Security Factor Projection')
 plt.legend()
 
@@ -114,4 +114,3 @@ plt.xlim(xmin=0, xmax=PROJECTED_BLOCKS_LIMIT)
 fig = plt.gcf()
 fig.set_size_inches(14.5, 8.5)
 fig.savefig('figures/security_factor.png', dpi=200, bbox_inches='tight')
-plt.show()
