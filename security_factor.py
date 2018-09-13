@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats
 
-from get_block_data import get_data
+from get_block_data import get_data, update_data
 
 
 PROJECTED_BLOCKS_LIMIT = 1200000
@@ -19,6 +19,8 @@ if not os.path.exists('data'):
 
 if not os.path.isfile('data/block_data.json'):
     get_data()
+else:
+    update_data()
 
 with open('data/block_data.json') as f:
     block_data = json.load(f)

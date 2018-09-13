@@ -10,6 +10,44 @@ data_file_name = 'data/block_data.json'
 START_BLOCK = 0
 BATCH_SIZE = 50
 
+def update_data():
+    print('Updating block data...')
+
+    with open('data/block_data.json') as f:
+        data = json.load(f)
+
+    latest_block_downloaded = data[-1]['block']
+    response = requests.get(latest_block_url)
+    latest_block_available = response.json()['height']
+
+    for block_num in range(latest_block_downloaded+1, latest_block_available):
+        print('Downloading block: {}'.format(block_num))
+        while True:
+            try:
+                response = requests.get(block_data_url.format(block_num))
+            except:
+                print('Timed out, retrying...')
+                time.sleep(30)
+                continue
+            if not response.status_code == 200:
+                print('Request failed, retrying...')
+                time.sleep(30)
+                continue
+            break
+
+        block = response.json()['data']
+        data.append({
+                    "block": block['height'],
+                    "timestamp": block['curr_max_timestamp'],
+                    "block_reward": block['reward_block'],
+                    "fees": block['reward_fees'],
+                })
+
+    with open('data/block_data.json', 'w') as f:
+        json.dump(data, f)
+    print('Up to date.')
+
+
 def get_data():
     print('Getting Data...')
     print('---------------------')
