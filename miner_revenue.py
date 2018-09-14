@@ -43,7 +43,7 @@ ax.set_yticklabels(ylabels)
 
 plt.xlabel('Year')
 plt.ylabel('USD')
-plt.title('Total Daily Miner Revenue')
+plt.title('Bitcoin Total Daily Miner Revenue')
 
 fig = plt.gcf()
 fig.set_size_inches(14.5, 8.5)

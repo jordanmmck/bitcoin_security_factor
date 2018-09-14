@@ -70,11 +70,11 @@ proj_block_nums_arr = np.array([d['block_num'] for d in projected_rewards])
 proj_block_rewards_arr = np.array([d['block_reward_sf'] for d in projected_rewards])
 
 # plot block rewards and fees
-plt.plot(block_nums_arr, block_reward_sf_arr, color='#2a51fc', linewidth=2, label='block reward security factor')
-plt.plot(block_nums_arr, fee_sf_arr, color='#a5a5a5', linewidth=0.2, label='fee security factor')
+plt.plot(block_nums_arr, block_reward_sf_arr, color='#2a51fc', linewidth=2, label='block reward')
+plt.plot(block_nums_arr, fee_sf_arr, color='#a5a5a5', linewidth=0.2, label='tx fee')
 
 # plot projected block rewards
-plt.plot(proj_block_nums_arr, proj_block_rewards_arr, color='#afbeff', linewidth=2, label='projected block rewards')
+plt.plot(proj_block_nums_arr, proj_block_rewards_arr, color='#afbeff', linewidth=2, label='projected block reward')
 
 # linear regression line
 slope, intercept, _, _, _ = stats.linregress(block_nums_arr, fee_sf_arr)
@@ -82,10 +82,10 @@ all_blocks_arr = np.append(block_nums_arr, proj_block_nums_arr)
 full_line = slope * all_blocks_arr + intercept
 
 # plot regression line
-plt.plot(all_blocks_arr, full_line, color='red', label='fee security factor linear regression')
+plt.plot(all_blocks_arr, full_line, color='red', label='tx fee linear regression')
 
 projected_line = slope * proj_block_nums_arr + intercept
-plt.plot(proj_block_nums_arr, proj_block_rewards_arr+projected_line, color='#ddc9ff', ls='dotted', label='block rewards + tx fees security factor')
+plt.plot(proj_block_nums_arr, proj_block_rewards_arr+projected_line, color='#ddc9ff', ls='dotted', label='projected block reward + tx fee')
 
 plt.rcParams['agg.path.chunksize'] = 100000
 
@@ -102,6 +102,8 @@ block_dates = {
 }
 ax = plt.gca()
 ax.set_xticklabels(list(block_dates.values()))
+# props = dict(boxstyle='round', facecolor='white', alpha=0.5)
+# plt.text(1.06e6, 0.106, 'Security factor is defined as amount paid \nin BTC divided by total supply', fontsize=9, bbox=props)
 
 plt.xlabel('Date')
 plt.ylabel('Security Factor (annualized)')
