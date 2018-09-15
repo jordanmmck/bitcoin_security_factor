@@ -60,7 +60,8 @@ for block_num in range(block_num+1, PROJECTED_BLOCKS_LIMIT):
             })
     supply += block_reward
 
-# block reward and fees arrays
+
+# block reward and fees sf arrays
 block_nums_arr = np.array([d['block'] for d in block_data])
 block_reward_sf_arr = np.array([d['block_reward_sf'] for d in block_data])
 fee_sf_arr = np.array([d['fee_sf'] for d in block_data])
@@ -102,8 +103,6 @@ block_dates = {
 }
 ax = plt.gca()
 ax.set_xticklabels(list(block_dates.values()))
-# props = dict(boxstyle='round', facecolor='white', alpha=0.5)
-# plt.text(1.06e6, 0.106, 'Security factor is defined as amount paid \nin BTC divided by total supply', fontsize=9, bbox=props)
 
 plt.xlabel('Date')
 plt.ylabel('Security Factor (annualized)')
