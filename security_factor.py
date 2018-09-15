@@ -11,7 +11,7 @@ from scipy import stats
 from get_block_data import get_data, update_data
 
 
-PROJECTED_BLOCKS_LIMIT = 1400000
+PROJECTED_BLOCKS_LIMIT = 1500000
 BLOCKS_PER_YEAR = 144 * 365
 
 if not os.path.exists('data'):
