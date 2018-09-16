@@ -114,4 +114,4 @@ plt.xlim(xmin=0, xmax=PROJECTED_BLOCKS_LIMIT)
 
 fig = plt.gcf()
 fig.set_size_inches(14.5, 8.5)
-fig.savefig('figures/security_factor.png', dpi=200, bbox_inches='tight')
+fig.savefig('figures/security_factor.png', dpi=100, bbox_inches='tight')

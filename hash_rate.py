@@ -45,4 +45,4 @@ plt.title('Bitcoin Hash Rate')
 
 fig = plt.gcf()
 fig.set_size_inches(14.5, 8.5)
-fig.savefig('figures/hash_rate.png', dpi=200, bbox_inches='tight')
+fig.savefig('figures/hash_rate.png', dpi=100, bbox_inches='tight')
