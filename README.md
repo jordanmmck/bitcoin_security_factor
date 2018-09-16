@@ -1,7 +1,6 @@
 # BTC Security Factor
 
 Plots Bitcoin hash rate, miner revenue, and "security factor".
-
 The security factor is also extrapolated out to get an estimate of Bitcoin's relative security in the future.
 
 ## Security Budget
@@ -11,12 +10,11 @@ Miner revenue can then be referred to as the "security budget".
 ## Security Factor
 Cost to attack must also scale with network value, so cryptonetworks must maintain a high security factor -- cost to attack as percentage of market cap.
 
-## Declining Block Rewards
-As block rewards decline, transaction fees become the sole source of Bitcoin security budget.
+## Usage
+Run one of `hash_rate.py`, `miner_revenue.py` or `security_factor.py` to produce the respective chart.
 
-Some Bitcoin proponents argue that total tx fees paid will increase **relative** to network value as block rewards decline.
-
-The data appears to support a very gradual relative increase, with a low point in about 10 years.
+`security_factor.py` pulls data from every single Bitcoin block so it will take a while.
+Each time the script is run it will check for new blocks and auto-download them.
 
 ![](./figures/hash_rate.png)
 ![](./figures/miner_revenue.png)
