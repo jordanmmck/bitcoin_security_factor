@@ -72,7 +72,7 @@ proj_block_rewards_arr = np.array([d['block_reward_sf'] for d in projected_rewar
 
 # plot block rewards and fees
 plt.plot(block_nums_arr, block_reward_sf_arr, color='#2a51fc', linewidth=2, label='block reward')
-plt.plot(block_nums_arr, fee_sf_arr, color='#a5a5a5', linewidth=0.2, label='tx fee')
+plt.plot(block_nums_arr, fee_sf_arr, color='#a5a5a5', linewidth=0.2, label='tx fees')
 
 # plot projected block rewards
 plt.plot(proj_block_nums_arr, proj_block_rewards_arr, color='#afbeff', linewidth=2, label='projected block reward')
