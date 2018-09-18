@@ -23,4 +23,4 @@ Each time the script is run it will check for new blocks and auto-download them.
 ![](./figures/miner_revenue.png)
 ![](./figures/security_factor.png)
 
-See my [Medium post](https://medium.com/coinmonks/bitcoin-security-a-negative-exponential-95e78b6b575) for more details.
+See my [Medium post](https://medium.com/@jordanmmck/bitcoin-security-in-one-chart-694ee3ed8c2d) for more details.

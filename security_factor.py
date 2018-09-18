@@ -111,7 +111,8 @@ plt.legend()
 
 plt.ylim(ymin=0, ymax=.14)
 plt.xlim(xmin=0, xmax=PROJECTED_BLOCKS_LIMIT)
+plt.text(13.5E5, 0.142, '@jordanmmck', color='#dfdfdf')
 
 fig = plt.gcf()
 fig.set_size_inches(14.5, 8.5)
-fig.savefig('figures/security_factor.png', dpi=100, bbox_inches='tight')
+fig.savefig('figures/security_factor.png', dpi=150, bbox_inches='tight')
